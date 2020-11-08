@@ -4,3 +4,4 @@
 /docker/db/*
 !.gitkeep
 .idea
+Vendor
