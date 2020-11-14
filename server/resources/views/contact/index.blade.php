@@ -13,8 +13,12 @@
                             {{ session('status') }}
                         </div>
                     @endif
-
-                    You are logged in!
+                        <a href="{{ route('contact.create') }}">新規登録</a>
+                        <form method="GET" action="{{ route('contact.create') }}">
+                            <button type="submit" class="btn btn-primary">
+                                新規登録
+                            </button>
+                        </form>
                 </div>
             </div>
         </div>
