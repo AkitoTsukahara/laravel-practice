@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\ContactForm;
 use Illuminate\Support\Facades\DB;
 use App\Services\CheckFormData;
+use App\Http\Requests\StoreContactForm;
 
 class ContactFormController extends Controller
 {
@@ -14,17 +15,40 @@ class ContactFormController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         //エロクワント　ORマッパー
         //$contacts = ContactForm::all();
 
-        //クエリビルダー
-        $contacts = DB::table('contact_forms')
-            ->select('id','your_name','title','created_at')
-            ->get();
+        $search = $request->input('search');
 
-        return view('contact.index',compact('contacts'));
+        //クエリビルダー
+//        $contacts = DB::table('contact_forms')
+//            ->select('id','your_name','title','created_at')
+//            //->orderBy('created_at','asc')
+//            ->paginate(20);
+
+        $query = DB::table('contact_forms');
+
+        //もしキーワードがあったら
+        if($search !== null){
+            //全角スペースを半角に
+            $search_split = mb_convert_kana($search,'s');
+
+            //空白で区切る
+            $search_split2 = preg_split('/[\s]+/', $search_split,-1,PREG_SPLIT_NO_EMPTY);
+
+            //単語をループで回す
+            foreach($search_split2 as $value)
+            {
+                $query->where('your_name','like','%'.$value.'%');
+            }
+        };
+
+        $query->select('id', 'your_name', 'title', 'created_at');
+        $contacts = $query->paginate(20);
+
+        return view('contact.index', compact('contacts'));
     }
 
     /**
@@ -44,7 +68,7 @@ class ContactFormController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreContactForm $request)
     {
         $contact = new ContactForm;
 
